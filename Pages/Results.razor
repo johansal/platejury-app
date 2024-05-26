@@ -2,8 +2,12 @@
 @using platejury_app.Data
 @inject PlaylistService playlistService
 @inject VotingService votingService
-@inject IJSRuntime JsRuntime
+@inject IJSRuntime jsRuntime
+@inject NavigationManager navManager
 
 <PageTitle>platejury-app results</PageTitle>
-
+<div>
+    <button @onclick="PreviousWeek"><i class="oi oi-media-skip-backward"></i></button>
+    <button @onclick='() => navManager.NavigateTo("/")'><i class="oi oi-home"></i></button>
+</div>
 <ResultsTable DisplayNames=DisplayNames TrackNames=TrackNames Votes=Votes Results=ResultSet/>
