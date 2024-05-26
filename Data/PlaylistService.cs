@@ -46,6 +46,48 @@ public class PlaylistService(ILogger<PlaylistService> logger, string clientId, s
         }
         return playlist;
     }
+    public async Task<Dictionary<string, string>> GetTackDisplayNames(List<string> trackIds)
+    {
+        Dictionary<string, string> displayNames = [];
+        if(accessToken == null || accessToken.IsExpired())
+        {
+            accessToken = await GetAccessTokenAsync();
+            if(accessToken == null) 
+            {
+                return displayNames;
+            }
+        }
+        using var requestMessage = 
+            new HttpRequestMessage(
+                HttpMethod.Get, 
+                $"https://api.spotify.com/v1/tracks?ids={String.Join(",", trackIds)}"
+            );
+        requestMessage.Headers.Authorization =
+            new AuthenticationHeaderValue(accessToken.Type, accessToken.Token);
+
+        var response = await client.SendAsync(requestMessage);
+        using var reader = new StreamReader(await response.Content.ReadAsStreamAsync());
+        var responseStr = await reader.ReadToEndAsync();
+        
+        if (response.IsSuccessStatusCode == false)
+        {
+            logger.LogError("Couldn't get track details: {error}", responseStr);
+        }
+        else {
+            var tracklist = JsonSerializer.Deserialize<TrackList>(responseStr);
+            if (tracklist?.TrackListTracks == null || trackIds.Count != tracklist.TrackListTracks.Count)
+            {
+                logger.LogError("API didn't return displayname for all tracks!");
+            }
+            else {
+                for (int i = 0; i < trackIds.Count; i++)
+                {
+                    displayNames[trackIds[i]] = $"{tracklist.TrackListTracks[i].Name} by {tracklist.TrackListTracks[i].Artists[0].Name}";
+                }
+            }        
+        }
+        return displayNames;   
+    }
     public async Task<Dictionary<string, string>> GetUserDisplayNames(List<string> userIds) 
     {
         var displayNames = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText("displaynames.json"));
