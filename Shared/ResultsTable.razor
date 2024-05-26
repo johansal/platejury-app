@@ -1,0 +1,96 @@
+<div>
+    <h2>Weekly Results (@Votes.FirstOrDefault()?.ResultDay.ToString("D")):</h2>
+    <br/>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Track</th>
+                <th scope="col">Added by</th>
+                <th scope="col">Total pts.</th>
+                @foreach(var vote in Votes) {
+                    if(DisplayNames.TryGetValue(vote.VoterId, out string? name))
+                    {
+                        <th scope="col">@name</th>
+                    }
+                    else 
+                    {
+                        <th scope="col">@vote.VoterId</th>
+                    }
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @{int rowCount = 1; int totalRows = Results.Count();}
+            @foreach(var result in Results) 
+            {
+                <tr>
+                    <th scope="row" style="color: @RowColor(rowCount, totalRows);">@rowCount</th>
+                    @if(TrackNames.TryGetValue(result.TrackId, out string? trackName))
+                    {
+                        <td style="color: @RowColor(rowCount, totalRows);">@trackName</td>
+                    }
+                    else 
+                    {
+                        <td style="color: @RowColor(rowCount, totalRows);">@result.TrackId</td>
+                    }
+                    @if(DisplayNames.TryGetValue(result.AddedBy, out string? name))
+                    {
+                        <td>@name</td>
+                    }
+                    else 
+                    {
+                        <td>@result.AddedBy</td>
+                    }
+                    <td style="color: @RowColor(rowCount, totalRows);">@result.GetTotal()</td>
+                    @for(int j = 0; j < Votes.Count; j++)
+                    {
+                        @if (result.Points.TryGetValue(Votes[j].VoterId, out int vPoint))
+                        {
+                            <td style="color: @ColumnColorCodes[vPoint];">@vPoint</td>
+                        }
+                        else 
+                        {
+                            <td/>
+                        }
+                            
+                    }
+                </tr>
+                rowCount++;
+            }
+        </tbody>
+    </table>
+</div>
+
+@code
+{
+    [Parameter]
+    public Dictionary<string, string> DisplayNames {get; set;} = [];
+    [Parameter]
+    public Dictionary<string, string> TrackNames {get; set;} = [];
+    [Parameter]
+    public List<Data.Votes> Votes {get; set;} = [];
+    [Parameter]
+    public IEnumerable<Data.ResultRow> Results {get; set;} = [];
+
+    //Winner, Default, Theme Selector, PointCounter
+    private List<string> RowColorCodes = ["#35fc03", "#59e3ff", "#ff59e6", "#ff0000"];
+    private List<string> ColumnColorCodes = ["#ffffff", "#ff0000", "#ff8000", "#ffe600", "#bbff00", "#35fc03"];
+
+    private string RowColor(int row, int totalRows) {
+        if(row == 1)
+        {
+            return RowColorCodes[0];
+        }
+        else if(row == totalRows - 1)
+        {
+            return RowColorCodes[2];
+        }
+        else if(row == totalRows)
+        {
+            return RowColorCodes[3];
+        }
+        return RowColorCodes[1];
+    }
+
+}

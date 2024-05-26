@@ -1,0 +1,95 @@
+﻿@page "/"
+@using platejury_app.Data
+@inject PlaylistService playlistService
+@inject VotingService votingService
+@inject IJSRuntime JsRuntime
+
+<PageTitle>platejury-app</PageTitle>
+
+@if (Playlist == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (Votes.Count < Playlist.Tracks.Items.Count)
+{
+    <h1 style="text-align: center;">
+        @Playlist.Description
+    </h1>
+
+    <br/>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3" style="text-align: right;">
+                <img style="height: 150px;" src="@Playlist.Images[0].Url" alt="Playlist art">
+            </div>
+            <div class="col-md-3">
+                <p>
+                    @for(int i = 0; i < 5; i++) 
+                    {
+                        var trackName = "...";
+                        if(i < SelectedTracks.Count)
+                        {
+                            trackName = SelectedTracks[i].Track.Name;
+                        }
+                        @(string.Format("{0}p. {1}",(5-i),trackName)) <br/>
+                    }
+                </p>
+            </div>
+            <div class="col-md-3">
+                <div>
+                    <label>Vote as:</label>
+                    <select @bind="SelectedVoterId">
+                        <option></option>
+                        @foreach (var item in Playlist.Tracks.Items)
+                        {
+                            if(DisplayNames.TryGetValue(item.AddedBy.Id, out string? name))
+                            {
+                                <option value="@item.AddedBy.Id">@name</option>
+                            }
+                            else 
+                            {
+                                <option value="@item.AddedBy.Id">@item.AddedBy.Id</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <br/>
+                <button class="btn btn-warning" @onclick="SubmitVotes">Submit votes!</button>
+            </div>
+            <div class="col-md-3">
+                <p>Voting progress: <button @onclick="RefreshSubmittedVotes"><i class="oi oi-reload"></i></button></p>
+                <h2>@Votes.Count / @Playlist.Tracks.Items.Count</h2>
+                <p style="color:red;">
+                    @if(DateTime.Now.DayOfWeek == DayOfWeek.Thursday && DateTime.Now.TimeOfDay.Hours >= 12  && Votes.Count < Playlist.Tracks.Items.Count)
+                    {
+                        <img src="shaking-angry-fist.gif" style="height:20pt;"/>
+                        @GetWallOfShame()
+                    }
+                </p>
+            </div>
+        </div>
+        <br/>
+        
+        <div class="row">
+            @foreach(var item in Playlist.Tracks.Items)
+            {
+                <div class="col-md-2">
+                    <div class="card">
+                        <a href="@item.Track.ExternalUrls.Spotify">
+                            <img class="card-img-top" src="@item.Track.Album.Images[0].Url" alt="Album art">
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Track.Name</h5>
+                            <p class="card-text">by @item.Track.Artists[0].Name</p>
+                            <button class="btn btn-warning" @onclick="() => Vote(item)">Vote</button>
+                        </div>
+                    </div> 
+                </div>      
+            }
+        </div>
+    </div>
+}
+else {
+    <ResultsTable DisplayNames=DisplayNames TrackNames=TrackNames Votes=Votes Results=Results/>
+}
