@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.3] - 2024-05-26
 
+### Added
+
+- View for earlier results
+
 ### Changed
 
 - made PlaylistService configurable

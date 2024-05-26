@@ -1,0 +1,9 @@
+@page "/results"
+@using platejury_app.Data
+@inject PlaylistService playlistService
+@inject VotingService votingService
+@inject IJSRuntime JsRuntime
+
+<PageTitle>platejury-app results</PageTitle>
+
+<ResultsTable DisplayNames=DisplayNames TrackNames=TrackNames Votes=Votes Results=ResultSet/>
