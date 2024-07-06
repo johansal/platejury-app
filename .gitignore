@@ -3,6 +3,7 @@
 _ReSharper.*
 bin
 obj
+certs
 packages
 example_data
 displaynames.json

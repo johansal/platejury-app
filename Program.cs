@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using platejury_app.Data;
 
 var credentials = @"platejury-app-firebase-adminsdk-r97ah-bcd639d082.json";
@@ -9,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<PlaylistService>(
+builder.Services.AddSingleton(
     sp =>
     {
         var logger = sp.GetRequiredService<ILogger<PlaylistService>>();
@@ -21,7 +19,17 @@ builder.Services.AddSingleton<PlaylistService>(
         return new PlaylistService(logger, clientId, clientSecret, tokenUri, playlistUri, playlistId);
     }
 );
-builder.Services.AddSingleton<VotingService>();
+builder.Services.AddSingleton(
+    sp =>
+    {
+        var logger = sp.GetRequiredService<ILogger<VotingService>>();
+        var project = builder.Configuration["VotingService:Project"] ?? "";
+        var collection = builder.Configuration["VotingService:Collection"] ?? "";
+        return new VotingService(logger, project, collection);
+    }
+);
+
+builder.WebHost.ConfigureKestrel(options => builder.Configuration.GetSection("Kestrel"));
 
 var app = builder.Build();
 

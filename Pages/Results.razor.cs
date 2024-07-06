@@ -18,10 +18,12 @@ public partial class Results
     }
     private async Task PreviousWeek() 
     {
-        resultDay = resultDay.AddDays(-7);
+        resultDay = await votingService.GetLatestResultDayAsync(resultDay);
         Votes =  await votingService.GetVotes(resultDay);
-        ResultSet = votingService.GetResults(Votes).OrderByDescending(_ => _);
-        DisplayNames = await playlistService.GetUserDisplayNames(ResultSet.Select(x => x.AddedBy).ToList());
-        TrackNames = await playlistService.GetTackDisplayNames(ResultSet.Select(x => x.TrackId).ToList());
+        if (Votes.Count > 0) {
+            ResultSet = votingService.GetResults(Votes).OrderByDescending(_ => _);
+            DisplayNames = await playlistService.GetUserDisplayNames(ResultSet.Select(x => x.AddedBy).ToList());
+            TrackNames = await playlistService.GetTackDisplayNames(ResultSet.Select(x => x.TrackId).ToList());
+        }
     }
 }

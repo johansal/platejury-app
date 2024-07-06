@@ -1,11 +1,10 @@
-using System.Data;
 using Google.Cloud.Firestore;
 
 namespace platejury_app.Data;
 
-public class VotingService(ILogger<VotingService> logger)
+public class VotingService(ILogger<VotingService> logger, string projectName, string collectionName)
 {
-    private readonly FirestoreDb db = FirestoreDb.Create("platejury-app");
+    private readonly FirestoreDb db = FirestoreDb.Create(projectName);
     private readonly ILogger<VotingService> logger = logger;
 
     public async Task<VotingServiceResponse> AddVotes(string voterId, List<Item> votedItems) 
@@ -30,7 +29,7 @@ public class VotingService(ILogger<VotingService> logger)
             tracks.Add(track);
         }
 
-        CollectionReference collection = db.Collection("votes");
+        CollectionReference collection = db.Collection(collectionName);
         
         // Delete any existing votes for the same user
         QuerySnapshot docs = await collection.WhereEqualTo("resultDay", GetCurrentVotingDay()).WhereEqualTo("voterId",voterId).GetSnapshotAsync();
@@ -59,7 +58,7 @@ public class VotingService(ILogger<VotingService> logger)
     }
     public async Task<List<Votes>> GetVotes(DateTime votingDay)
     {
-        CollectionReference collection = db.Collection("votes");
+        CollectionReference collection = db.Collection(collectionName);
         QuerySnapshot docs = await collection.WhereEqualTo("resultDay", votingDay).GetSnapshotAsync();
 
         var votes = new List<Votes>();
@@ -76,7 +75,6 @@ public class VotingService(ILogger<VotingService> logger)
         }
         return votes;
     }
-
     public IEnumerable<ResultRow> GetResults(List<Votes> votes)
     {
         IEnumerable<ResultRow> results = [];
@@ -100,7 +98,10 @@ public class VotingService(ILogger<VotingService> logger)
         }
         return results;
     }
-
+    /// <summary>
+    /// Get the date for the ongoing voting periods voting day (next thursday).
+    /// </summary>
+    /// <returns>Today if it is currently thursday; otherwise returns next Thursday.</returns>
     public static DateTime GetCurrentVotingDay()
     {
         var today = DateTime.Today;
@@ -109,5 +110,28 @@ public class VotingService(ILogger<VotingService> logger)
         var daysUntilVotingDay = ((int) DayOfWeek.Thursday - (int) today.DayOfWeek + 7) % 7;
         DateTime votingDay = today.AddDays(daysUntilVotingDay);
         return DateTime.SpecifyKind(votingDay, DateTimeKind.Utc);
+    }
+    /// <summary>
+    /// Queries database for the date of first existing results that is older than the startAfter parameter.
+    /// </summary>
+    /// <param name="startAfter"></param>
+    /// <returns>resultDay value of the query result; if query returns empty collection this defaults to last thursday.</returns>
+    public async Task<DateTime> GetLatestResultDayAsync(DateTime startAfter)
+    {
+        CollectionReference collection = db.Collection(collectionName);
+        Query query = collection.OrderByDescending("resultDay").StartAfter(startAfter).Limit(1);
+        var docs = await query.GetSnapshotAsync();
+
+        if(docs.Count == 1)
+        {
+            return docs[0].GetValue<DateTime>("resultDay");
+        }
+        else {
+            logger.LogWarning("Could not find earlier results from db, defaulting to last week!");
+            logger.LogDebug("{count}", docs.Count);
+        }
+        // Default to last weeks thursday
+        var daysUntilThursday = ((int) DayOfWeek.Thursday - (int) startAfter.DayOfWeek + 7) % 7;
+        return startAfter.AddDays(daysUntilThursday-7);
     }
 }

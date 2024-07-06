@@ -9,6 +9,11 @@ Blazor app for Platejury.
 - PlaylistURI: spotify api url to playlists endpoint
 - PlaylistId: spotify playlist id
 
+### VotingService configuration
+
+- Project: Firebase project name for the database
+- Collection: Firebase db collection name for the votes
+
 ### Displaynames
 
 By default the app will try to get display names for users from the spotify api.
