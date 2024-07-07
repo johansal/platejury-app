@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Weeks that don't have results are now skipped instead of showing empty table in the result view.
+- stop using Hsts due to http/s redirecting issues
 
 ## [0.0.3] - 2024-05-26
 
