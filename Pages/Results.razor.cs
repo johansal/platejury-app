@@ -24,6 +24,8 @@ public partial class Results
             ResultSet = votingService.GetResults(Votes).OrderByDescending(_ => _);
             DisplayNames = await playlistService.GetUserDisplayNames(ResultSet.Select(x => x.AddedBy).ToList());
             TrackNames = await playlistService.GetTackDisplayNames(ResultSet.Select(x => x.TrackId).ToList());
+            //make sure ResultSet has been added to history
+            await historyService.AddTracksFromResults(ResultSet, resultDay);
         }
     }
 }

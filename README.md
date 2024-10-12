@@ -24,3 +24,11 @@ displaynames.json file to root directory with known users names (this is also ha
     "spotify user id": "displayname"
 }
 ```
+
+### How to run
+
+Add playlist service configuration secrets to appsettings.json or to local secretstore (dotnet user-secrets set key value).
+Add displaynames.json.
+Add firestore admin sdk credentials .json-file.
+
+Run command `dotnet run`

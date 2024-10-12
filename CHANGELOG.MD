@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.5] - 2024-10-12
+
+### Added
+
+- HistoryService and views for winner table and historical tracks on new /statistics page
+
 ## [0.0.4] - 2024-07-06
 
 ### Added
