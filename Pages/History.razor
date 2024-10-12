@@ -1,0 +1,14 @@
+@page "/statistics"
+@using platejury_app.Data
+@inject HistoryService historyService
+@inject IJSRuntime jsRuntime
+@inject NavigationManager navManager
+
+<PageTitle>platejury-app history</PageTitle>
+<div>
+    <button @onclick='() => navManager.NavigateTo("/results")'><i class="oi oi-list"></i></button>
+    <button @onclick='() => navManager.NavigateTo("/")'><i class="oi oi-home"></i></button>
+</div>
+<WinnerTable History=histories/>
+<br>
+<HistoryTable History=histories/>

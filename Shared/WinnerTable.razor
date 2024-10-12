@@ -1,0 +1,59 @@
+<div>
+    <h2>Winners:</h2>
+    <table class="table">
+        <tbody>
+            @foreach(var w in FilterWinners()) 
+            {
+                <tr>
+                    <td>@w.UserName</td>
+                    <td>@w.Count</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code
+{
+    [Parameter]
+    public IEnumerable<Data.HistoryTrack> History {get; set;} = [];
+
+    private IEnumerable<Winner> FilterWinners()
+    {
+        var position1Counts = History
+            .Where(up => up.Position == 1) // Filter for position 1
+            .GroupBy(up => up.UserName) // Group by Username
+            .Select(g => new Winner
+            {
+                UserName = g.Key,
+                Count = g.Count(), // Count how many position 1 each user has
+                LastWin = g.Max(x => x.ResultDay) // Store last win date for tiebreaking
+            })
+            .OrderByDescending(_ => _);
+        return position1Counts;
+    }
+
+    public class Winner : IComparable {
+        public string? UserName {get; set;}
+        public int Count {get; set;}
+        public DateTime LastWin {get; set;}
+        public int CompareTo(object? obj)
+        {
+            if(obj != null)
+            {
+                var o = (Winner) obj;
+                var ret = Count - o.Count;
+                if(ret == 0)
+                {
+                    return DateTime.Compare(o.LastWin, LastWin);
+                }
+                else 
+                {
+                    return ret;
+                }
+            }
+            return -1;
+        }
+    }
+    
+}

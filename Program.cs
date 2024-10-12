@@ -28,6 +28,13 @@ builder.Services.AddSingleton(
         return new VotingService(logger, project, collection);
     }
 );
+builder.Services.AddSingleton(
+    sp =>
+    {
+        var logger = sp.GetRequiredService<ILogger<HistoryService>>();
+        return new HistoryService(logger, sp.GetRequiredService<PlaylistService>(), "platejury-app", "history");
+    }
+);
 
 builder.WebHost.ConfigureKestrel(options => builder.Configuration.GetSection("Kestrel"));
 
