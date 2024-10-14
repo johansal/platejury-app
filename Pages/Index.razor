@@ -2,6 +2,7 @@
 @using platejury_app.Data
 @inject PlaylistService playlistService
 @inject VotingService votingService
+@inject HistoryService historyService
 @inject NavigationManager navManager
 @inject IJSRuntime JsRuntime
 
@@ -18,7 +19,7 @@
 }
 else if (Votes.Count < Playlist.Tracks.Items.Count)
 {
-    <h1 style="text-align: center;">
+    <h1 class="display-5" style="text-align: center;">
         @Playlist.Description
     </h1>
 
@@ -89,6 +90,12 @@ else if (Votes.Count < Playlist.Tracks.Items.Count)
                             <h5 class="card-title">@item.Track.Name</h5>
                             <p class="card-text">by @item.Track.Artists[0].Name</p>
                             <button class="btn btn-warning" @onclick="() => Vote(item)">Vote</button>
+                            @if(DuplicateTracks.TryGetValue(item.Track.Id, out var lastSeen))
+                            {
+                                <div>
+                                    <i class="oi oi-ban"></i> Entry from week @System.Globalization.ISOWeek.GetWeekOfYear(lastSeen) / @lastSeen.ToString("yyyy")
+                                </div>
+                            }
                         </div>
                     </div> 
                 </div>      

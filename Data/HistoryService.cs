@@ -75,4 +75,25 @@ public class HistoryService(ILogger<HistoryService> logger, PlaylistService play
         }
         logger.LogInformation("Added results to history.");
     }
+    /// <summary>
+    /// Query db for trackids and check if they have been added earlier.
+    /// </summary>
+    /// <param name="trackIds">list of track ids to query</param>
+    /// <returns>dictionary with track id as key and resultday as value</returns>
+    public async Task<Dictionary<string,DateTime>> FindDuplicateTracks(List<string> trackIds)
+    {
+        CollectionReference collection = db.Collection(collectionName);
+        Query query = collection.WhereIn("trackId", trackIds);
+        var querySnapshot = await query.GetSnapshotAsync();
+        Dictionary<string,DateTime> result = [];
+        if(querySnapshot.Count > 0)
+        {
+            foreach (var doc in querySnapshot.Documents)
+            {
+                logger.LogDebug("Track found: {trackId}", doc.GetValue<string>("trackId"));
+                result[doc.GetValue<string>("trackId")] = doc.GetValue<DateTime>("resultDay");
+            }
+        }
+        return result;
+    }
 }
