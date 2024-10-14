@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.6] - 2024-10-14
+
+### Added
+
+- Duplicate check for playlist entries against history data, show warning if the entry was already used earlier
+
 ## [0.0.5] - 2024-10-12
 
 ### Added

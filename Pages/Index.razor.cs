@@ -10,6 +10,7 @@ public partial class Index
     private string? SelectedVoterId;
     private Dictionary<string, string> DisplayNames = [];
     private Dictionary<string, string> TrackNames = [];
+    private Dictionary<string,DateTime> DuplicateTracks = [];
     private List<Votes> Votes = [];
     private IEnumerable<ResultRow> Results = [];
 
@@ -23,6 +24,7 @@ public partial class Index
             DisplayNames = await playlistService.GetUserDisplayNames(users);
         // get display names for tracks
         TrackNames = GetTrackDisplayNames();
+        DuplicateTracks = await historyService.FindDuplicateTracks([.. TrackNames.Keys]);
         // get votes from db and calculate results
         await RefreshSubmittedVotes();
     }
@@ -108,9 +110,5 @@ public partial class Index
         {
             await JsRuntime.InvokeVoidAsync("alert", "Voter not selected!");
         }
-    }
-    private async void Spin()
-    {
-        await JsRuntime.InvokeVoidAsync("");
     }
 }
