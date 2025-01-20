@@ -40,14 +40,14 @@ public class VotingService(ILogger<VotingService> logger, string projectName, st
         }
 
         // Add new vote to collection.
-        await collection.AddAsync(
+        var vote = await collection.AddAsync(
             new {
                 voterId,
                 votedTracks = tracks,
                 resultDay = GetCurrentVotingDay()
             }
         );
-        logger.LogInformation(@"{datetime} Added votes for {voterId}", DateTime.Now, voterId);
+        logger.LogInformation(@"{datetime} Added votes {voteId} for {voterId}", DateTime.Now, vote.Id, voterId);
         return new() {
             IsSuccess = true
         };

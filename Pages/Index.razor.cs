@@ -92,23 +92,26 @@ public partial class Index
     // Save the current top 5 from voting list to db
     private async Task SubmitVotes()
     {
-        if (SelectedVoterId != null)
+        if (string.IsNullOrEmpty(SelectedVoterId))
+        {
+            await JsRuntime.InvokeVoidAsync("alert", "Voter not selected!");
+
+        }
+        else if (SelectedTracks.Count > 0 || await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to vote empty?"))
         {
             var trackSelection = SelectedTracks.Count > 5 ? SelectedTracks.GetRange(0, 5) : SelectedTracks;
             var ret = await votingService.AddVotes(SelectedVoterId, trackSelection);
-            if(ret.IsSuccess) 
+            if (ret.IsSuccess)
             {
+                await JsRuntime.InvokeVoidAsync("alert", "Your votes have been registered, thank you for your service!");
                 await RefreshSubmittedVotes();
+                //Clear track selection
+                SelectedTracks.Clear();
             }
-            else 
+            else
             {
                 await JsRuntime.InvokeVoidAsync("alert", ret.Message);
             }
-            
-        }
-        else
-        {
-            await JsRuntime.InvokeVoidAsync("alert", "Voter not selected!");
         }
     }
 }
