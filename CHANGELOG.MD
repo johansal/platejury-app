@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.7] - 2025-01-20
+
+### Added
+
+- Show alert after submitting votes
+- Confirm before submitting vote with empty tracklist
+
+### Changed
+
+- Clear tracklist after voting
+
 ## [0.0.6] - 2024-10-14
 
 ### Added
