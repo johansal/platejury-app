@@ -9,6 +9,7 @@ public class VotingService(ILogger<VotingService> logger, string projectName, st
 
     public async Task<VotingServiceResponse> AddVotes(string voterId, List<Item> votedItems) 
     {
+        var votingDay = GetCurrentVotingDay();
         var tracks = new List<Dictionary<string, string>>();
         foreach(var item in votedItems)
         {
@@ -32,7 +33,7 @@ public class VotingService(ILogger<VotingService> logger, string projectName, st
         CollectionReference collection = db.Collection(collectionName);
         
         // Delete any existing votes for the same user
-        QuerySnapshot docs = await collection.WhereEqualTo("resultDay", GetCurrentVotingDay()).WhereEqualTo("voterId",voterId).GetSnapshotAsync();
+        QuerySnapshot docs = await collection.WhereEqualTo("resultDay", votingDay).WhereEqualTo("voterId",voterId).GetSnapshotAsync();
         foreach(var doc in docs)
         {
             logger.LogInformation("{datetime} Deleting existing votes {docId} for {voterId}", DateTime.Now, doc.Id, voterId);
@@ -44,7 +45,7 @@ public class VotingService(ILogger<VotingService> logger, string projectName, st
             new {
                 voterId,
                 votedTracks = tracks,
-                resultDay = GetCurrentVotingDay()
+                resultDay = votingDay
             }
         );
         logger.LogInformation(@"{datetime} Added votes {voteId} for {voterId}", DateTime.Now, vote.Id, voterId);
@@ -62,16 +63,27 @@ public class VotingService(ILogger<VotingService> logger, string projectName, st
         QuerySnapshot docs = await collection.WhereEqualTo("resultDay", votingDay).GetSnapshotAsync();
 
         var votes = new List<Votes>();
+        List<string> voterIds = [];
         foreach(var doc in docs)
         {
-            votes.Add(
-                new Votes
-                {
-                    Id = doc.Id,
-                    VoterId = doc.GetValue<string>("voterId"),
-                    VotedTracks = doc.GetValue<List<Dictionary<string, string>>>("votedTracks"),
-                    ResultDay = doc.GetValue<DateTime>("resultDay")
-                });
+            // check fort duplicate votes
+            var voterId = doc.GetValue<string>("voterId");
+            if (voterIds.Contains(voterId))
+            {
+                logger.LogError("{datetime} Duplicate votes found for {voterid}, skipping document {id}!", DateTime.Now, doc.GetValue<string>("voterId"), doc.Id);
+            }
+            else
+            {
+                votes.Add(
+                    new Votes
+                    {
+                        Id = doc.Id,
+                        VoterId = voterId,
+                        VotedTracks = doc.GetValue<List<Dictionary<string, string>>>("votedTracks"),
+                        ResultDay = doc.GetValue<DateTime>("resultDay")
+                    });
+                voterIds.Add(voterId);
+            }
         }
         return votes;
     }
