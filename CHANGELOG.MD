@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - duplicate check for votes/results voterid's
+- clear selectedvoter after voting
+- toggle vote button text and class after selection
+- ensure playlist and history data is loaded only once on intialization
 
 ## [0.0.7] - 2025-01-20
 

@@ -5,16 +5,26 @@ namespace platejury_app.Pages;
 
 public partial class Index
 {
+    private bool _isLoaded = false;
     private Playlist? Playlist;
     private List<Item> SelectedTracks = [];
     private string? SelectedVoterId;
     private Dictionary<string, string> DisplayNames = [];
     private Dictionary<string, string> TrackNames = [];
     private Dictionary<string,DateTime> DuplicateTracks = [];
+    private Dictionary<string,bool> VoteButtonStates = [];
     private List<Votes> Votes = [];
     private IEnumerable<ResultRow> Results = [];
 
     protected override async Task OnInitializedAsync()
+    {
+        if (_isLoaded == false )
+        {
+            _isLoaded = true;
+            _ = LoadDataAsync();
+        }
+    }
+    private async Task LoadDataAsync()
     {
         // get playlist from spotify api
         Playlist = await playlistService.GetPlaylistAsync();
@@ -27,6 +37,7 @@ public partial class Index
         DuplicateTracks = await historyService.FindDuplicateTracks([.. TrackNames.Keys]);
         // get votes from db and calculate results
         await RefreshSubmittedVotes();
+        StateHasChanged(); // Ensures UI updates when data is ready
     }
 
     private string GetWallOfShame()
@@ -79,11 +90,8 @@ public partial class Index
     // Add tracks to or remove from voting list
     private void Vote(Item item)
     {
-        if (SelectedTracks.Contains(item))
-        {
-            SelectedTracks.Remove(item);
-        }
-        else
+        VoteButtonStates[item.Track.Id] = !VoteButtonStates[item.Track.Id];
+        if (SelectedTracks.Remove(item) == false)
         {
             SelectedTracks.Add(item);
         }
@@ -105,8 +113,9 @@ public partial class Index
             {
                 await JsRuntime.InvokeVoidAsync("alert", "Your votes have been registered, thank you for your service!");
                 await RefreshSubmittedVotes();
-                //Clear track selection
+                //Clear form
                 SelectedTracks.Clear();
+                SelectedVoterId = null;
             }
             else
             {

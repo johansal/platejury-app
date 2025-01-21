@@ -77,10 +77,12 @@ else if (Votes.Count < Playlist.Tracks.Items.Count)
             </div>
         </div>
         <br/>
-        
+
         <div class="row">
             @foreach(var item in Playlist.Tracks.Items)
             {
+                if (VoteButtonStates.ContainsKey(item.Track.Id) == false)
+                    VoteButtonStates[item.Track.Id] = false;
                 <div class="col-md-2">
                     <div class="card">
                         <a href="@item.Track.ExternalUrls.Spotify">
@@ -89,7 +91,9 @@ else if (Votes.Count < Playlist.Tracks.Items.Count)
                         <div class="card-body">
                             <h5 class="card-title">@item.Track.Name</h5>
                             <p class="card-text">by @item.Track.Artists[0].Name</p>
-                            <button class="btn btn-warning" @onclick="() => Vote(item)">Vote</button>
+                            <button class="btn @(VoteButtonStates[item.Track.Id] ? "" : "btn-warning")" @onclick="() => Vote(item)">
+                                @(VoteButtonStates[item.Track.Id] ? "Remove" : "Vote")
+                            </button>
                             @if(DuplicateTracks.TryGetValue(item.Track.Id, out var lastSeen))
                             {
                                 <div>
