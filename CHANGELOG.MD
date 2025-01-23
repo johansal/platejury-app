@@ -6,11 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.0.9] - 2025-01-23
+
+### Added
+
+- add namespaces for razor pages
+
+### Changed
+
+- upgrade to dotnet 9
+-moved alert for successfull voting after await for results
+
 ## [0.0.8] - 2025-01-21
 
 ### Added
 
 - duplicate check for votes/results voterid's
+
+### Changed
+
 - clear selectedvoter after voting
 - toggle vote button text and class after selection
 - ensure playlist and history data is loaded only once on intialization

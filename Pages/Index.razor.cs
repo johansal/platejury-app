@@ -16,7 +16,7 @@ public partial class Index
     private List<Votes> Votes = [];
     private IEnumerable<ResultRow> Results = [];
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         if (_isLoaded == false )
         {
@@ -111,11 +111,11 @@ public partial class Index
             var ret = await votingService.AddVotes(SelectedVoterId, trackSelection);
             if (ret.IsSuccess)
             {
-                await JsRuntime.InvokeVoidAsync("alert", "Your votes have been registered, thank you for your service!");
                 await RefreshSubmittedVotes();
                 //Clear form
                 SelectedTracks.Clear();
                 SelectedVoterId = null;
+                await JsRuntime.InvokeVoidAsync("alert", "Your votes have been registered, thank you for your service!");
             }
             else
             {
