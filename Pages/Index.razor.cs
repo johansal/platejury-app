@@ -115,6 +115,10 @@ public partial class Index
                 //Clear form
                 SelectedTracks.Clear();
                 SelectedVoterId = null;
+                foreach(var k in VoteButtonStates.Keys)
+                {
+                    VoteButtonStates[k] = false;
+                }
                 await JsRuntime.InvokeVoidAsync("alert", "Your votes have been registered, thank you for your service!");
             }
             else
