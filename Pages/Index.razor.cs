@@ -8,13 +8,14 @@ public partial class Index
     private bool _isLoaded = false;
     private Playlist? Playlist;
     private List<Item> SelectedTracks = [];
-    private string? SelectedVoterId;
+    private string SelectedVoterId = string.Empty;
     private Dictionary<string, string> DisplayNames = [];
     private Dictionary<string, string> TrackNames = [];
     private Dictionary<string,DateTime> DuplicateTracks = [];
     private Dictionary<string,bool> VoteButtonStates = [];
     private List<Votes> Votes = [];
     private IEnumerable<ResultRow> Results = [];
+    private (bool IsLoading, string ErrorText) Modal = (false, "");
 
     protected override void OnInitialized()
     {
@@ -100,31 +101,27 @@ public partial class Index
     // Save the current top 5 from voting list to db
     private async Task SubmitVotes()
     {
-        if (string.IsNullOrEmpty(SelectedVoterId))
-        {
-            await JsRuntime.InvokeVoidAsync("alert", "Voter not selected!");
+        Modal.IsLoading = true;
+        Modal.ErrorText = string.Empty;
 
-        }
-        else if (SelectedTracks.Count > 0 || await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to vote empty?"))
+        var trackSelection = SelectedTracks.Count > 5 ? SelectedTracks.GetRange(0, 5) : SelectedTracks;
+        var ret = await votingService.AddVotes(SelectedVoterId, trackSelection);
+        if (ret.IsSuccess)
         {
-            var trackSelection = SelectedTracks.Count > 5 ? SelectedTracks.GetRange(0, 5) : SelectedTracks;
-            var ret = await votingService.AddVotes(SelectedVoterId, trackSelection);
-            if (ret.IsSuccess)
+            await RefreshSubmittedVotes();
+            //Clear form
+            SelectedTracks.Clear();
+            SelectedVoterId = string.Empty;
+            foreach(var k in VoteButtonStates.Keys)
             {
-                await RefreshSubmittedVotes();
-                //Clear form
-                SelectedTracks.Clear();
-                SelectedVoterId = null;
-                foreach(var k in VoteButtonStates.Keys)
-                {
-                    VoteButtonStates[k] = false;
-                }
-                await JsRuntime.InvokeVoidAsync("alert", "Your votes have been registered, thank you for your service!");
-            }
-            else
-            {
-                await JsRuntime.InvokeVoidAsync("alert", ret.Message);
+                VoteButtonStates[k] = false;
             }
         }
+        else
+        {
+            Modal.ErrorText = ret.Message ?? string.Empty;
+        }
+
+        Modal.IsLoading = false;
     }
 }

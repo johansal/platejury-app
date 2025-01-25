@@ -13,6 +13,28 @@
     <button @onclick='() => navManager.NavigateTo("/statistics")'><i class="oi oi-people"></i></button>
 </div>
 
+<!-- Loading modal for submitting votes -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+
+        @if (Modal.IsLoading)
+        {
+            <p>⏳ Processing votes... Please wait.</p>
+        }
+        else
+        {
+            if(string.IsNullOrEmpty(Modal.ErrorText))
+            {
+                <p>✅ Your votes have been registered, thank you for your service!</p>
+            }
+            else {
+                <p>❌ @Modal.ErrorText</p>
+            }
+        }
+
+    </div>
+</div>
+
 @if (Playlist == null)
 {
     <p><em>Loading...</em></p>
@@ -62,7 +84,7 @@ else if (Votes.Count < Playlist.Tracks.Items.Count)
                     </select>
                 </div>
                 <br/>
-                <button class="btn btn-warning" @onclick="SubmitVotes">Submit votes!</button>
+                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#loadingModal" disabled="@string.IsNullOrEmpty(SelectedVoterId)" @onclick="SubmitVotes">Submit votes!</button>
             </div>
             <div class="col-md-3">
                 <p>Voting progress: <button @onclick="RefreshSubmittedVotes"><i class="oi oi-reload"></i></button></p>
