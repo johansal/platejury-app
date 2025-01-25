@@ -9,6 +9,15 @@ public class VotingService(ILogger<VotingService> logger, string projectName, st
 
     public async Task<VotingServiceResponse> AddVotes(string voterId, List<Item> votedItems) 
     {
+        if(string.IsNullOrEmpty(voterId))
+        {
+            logger.LogError("{datetime} Invalid voterid!", DateTime.Now);
+            return new()
+            {
+                IsSuccess = false,
+                Message = "Invalid voterId!"
+            };
+        }
         var votingDay = GetCurrentVotingDay();
         var tracks = new List<Dictionary<string, string>>();
         foreach(var item in votedItems)

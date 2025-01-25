@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.0.9] - 2025-01-23
+## [0.0.9] - 2025-01-25
 
 ### Added
 
@@ -16,7 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - upgrade to dotnet 9
--moved alert for successfull voting after await for results
+- moved alert for successfull voting after await for results
+- refactored all alerts and confirms to bootstrap modals
+- validate voterId on service side
+
+## Fixed
+
+- clear toggle vote button state after submit
 
 ## [0.0.8] - 2025-01-21
 
