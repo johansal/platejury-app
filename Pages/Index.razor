@@ -17,23 +17,57 @@
 <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
 
-        @if (Modal.IsLoading)
+        @if (SubmitVotesModal.IsLoading)
         {
             <p>⏳ Processing votes... Please wait.</p>
         }
         else
         {
-            if(string.IsNullOrEmpty(Modal.ErrorText))
+            if (string.IsNullOrEmpty(SubmitVotesModal.ErrorText))
             {
                 <p>✅ Your votes have been registered, thank you for your service!</p>
             }
-            else {
-                <p>❌ @Modal.ErrorText</p>
+            else
+            {
+                <p>❌ @SubmitVotesModal.ErrorText</p>
             }
         }
 
     </div>
 </div>
+<!-- Modal form for submitting theme -->
+<EditForm Model="@FormData" OnValidSubmit="SubmitTheme">
+    <div class="modal fade" id="themeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select theme</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Theme</label>
+                        <InputText class="form-control" @bind-Value="FormData.Name" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Who's theme is this?</label>
+                        <InputSelect class="form-control" @bind-Value="FormData.AddedBy">
+                            @foreach (var option in DisplayNames.Values)
+                            {
+                                <option value="@option">@option</option>
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
 
 @if (Playlist == null)
 {
@@ -41,27 +75,32 @@
 }
 else if (Votes.Count < Playlist.Tracks.Items.Count)
 {
-    <h1 class="display-5" style="text-align: center;">
-        @Playlist.Description
-    </h1>
-
-    <br/>
-
     <div class="container">
+        <div class="row">
+            <div class="d-flex align-items-center">
+                <h1 class="display-5">
+                    @Theme
+                </h1>
+                <button class="btn btn-sm btn-outline-secondary ms-2" title="Change" data-bs-toggle="modal"
+                    data-bs-target="#themeModal">
+                    <i class="oi oi-brush"></i>
+                </button>
+            </div>
+        </div>
         <div class="row">
             <div class="col-md-3" style="text-align: right;">
                 <img style="height: 150px;" src="@Playlist.Images[0].Url" alt="Playlist art">
             </div>
             <div class="col-md-3">
                 <p>
-                    @for(int i = 0; i < 5; i++) 
+                    @for (int i = 0; i < 5; i++)
                     {
                         var trackName = "...";
-                        if(i < SelectedTracks.Count)
+                        if (i < SelectedTracks.Count)
                         {
                             trackName = SelectedTracks[i].Track.Name;
                         }
-                        @(string.Format("{0}p. {1}",(5-i),trackName)) <br/>
+                        @(string.Format("{0}p. {1}", (5 - i), trackName)) <br />
                     }
                 </p>
             </div>
@@ -72,36 +111,38 @@ else if (Votes.Count < Playlist.Tracks.Items.Count)
                         <option></option>
                         @foreach (var item in Playlist.Tracks.Items)
                         {
-                            if(DisplayNames.TryGetValue(item.AddedBy.Id, out string? name))
+                            if (DisplayNames.TryGetValue(item.AddedBy.Id, out string? name))
                             {
                                 <option value="@item.AddedBy.Id">@name</option>
                             }
-                            else 
+                            else
                             {
                                 <option value="@item.AddedBy.Id">@item.AddedBy.Id</option>
                             }
                         }
                     </select>
                 </div>
-                <br/>
-                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#loadingModal" disabled="@string.IsNullOrEmpty(SelectedVoterId)" @onclick="SubmitVotes">Submit votes!</button>
+                <br />
+                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#loadingModal"
+                    disabled="@string.IsNullOrEmpty(SelectedVoterId)" @onclick="SubmitVotes">Submit votes!</button>
             </div>
             <div class="col-md-3">
                 <p>Voting progress: <button @onclick="RefreshSubmittedVotes"><i class="oi oi-reload"></i></button></p>
                 <h2>@Votes.Count / @Playlist.Tracks.Items.Count</h2>
                 <p style="color:red;">
-                    @if(DateTime.Now.DayOfWeek == DayOfWeek.Thursday && DateTime.Now.TimeOfDay.Hours >= 12  && Votes.Count < Playlist.Tracks.Items.Count)
+                    @if (DateTime.Now.DayOfWeek == DayOfWeek.Thursday && DateTime.Now.TimeOfDay.Hours >= 12 && Votes.Count <
+                                    Playlist.Tracks.Items.Count)
                     {
-                        <img src="shaking-angry-fist.gif" style="height:20pt;"/>
+                        <img src="shaking-angry-fist.gif" style="height:20pt;" />
                         @GetWallOfShame()
                     }
                 </p>
             </div>
         </div>
-        <br/>
+        <br />
 
         <div class="row">
-            @foreach(var item in Playlist.Tracks.Items)
+            @foreach (var item in Playlist.Tracks.Items)
             {
                 if (VoteButtonStates.ContainsKey(item.Track.Id) == false)
                     VoteButtonStates[item.Track.Id] = false;
@@ -113,22 +154,25 @@ else if (Votes.Count < Playlist.Tracks.Items.Count)
                         <div class="card-body">
                             <h5 class="card-title">@item.Track.Name</h5>
                             <p class="card-text">by @item.Track.Artists[0].Name</p>
-                            <button class="btn @(VoteButtonStates[item.Track.Id] ? "" : "btn-warning")" @onclick="() => Vote(item)">
+                            <button class="btn @(VoteButtonStates[item.Track.Id] ? "" : "btn-warning")"
+                                @onclick="() => Vote(item)">
                                 @(VoteButtonStates[item.Track.Id] ? "Remove" : "Vote")
                             </button>
-                            @if(DuplicateTracks.TryGetValue(item.Track.Id, out var lastSeen))
+                            @if (DuplicateTracks.TryGetValue(item.Track.Id, out var lastSeen))
                             {
                                 <div>
-                                    <i class="oi oi-ban"></i> Entry from week @System.Globalization.ISOWeek.GetWeekOfYear(lastSeen) / @lastSeen.ToString("yyyy")
+                                    <i class="oi oi-ban"></i> Entry from week @System.Globalization.ISOWeek.GetWeekOfYear(lastSeen)
+                                    / @lastSeen.ToString("yyyy")
                                 </div>
                             }
                         </div>
-                    </div> 
-                </div>      
+                    </div>
+                </div>
             }
         </div>
     </div>
 }
-else {
-    <ResultsTable DisplayNames=DisplayNames TrackNames=TrackNames Votes=Votes Results=Results/>
+else
+{
+    <ResultsTable DisplayNames=DisplayNames TrackNames=TrackNames Votes=Votes Results=Results />
 }
