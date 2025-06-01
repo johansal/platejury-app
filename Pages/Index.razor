@@ -41,7 +41,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Select theme</h5>
+                    <h5 class="modal-title">Submit theme</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -62,7 +62,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
                 </div>
             </div>
         </div>
@@ -77,10 +77,18 @@ else if (Votes.Count < Playlist.Tracks.Items.Count)
 {
     <div class="container">
         <div class="row">
-            <div class="d-flex align-items-center">
-                <h1 class="display-5">
-                    @Theme
-                </h1>
+            <div class="d-flex justify-content-center align-items-center">
+                <figure>
+                    <blockquote class="blockquote">
+                        <p>@Theme.Name</p>
+                    </blockquote>
+                    @if(string.IsNullOrEmpty(Theme.AddedBy) == false)
+                    {
+                        <figcaption class="blockquote-footer">
+                            @Theme.AddedBy
+                        </figcaption>
+                    }
+                </figure>
                 <button class="btn btn-sm btn-outline-secondary ms-2" title="Change" data-bs-toggle="modal"
                     data-bs-target="#themeModal">
                     <i class="oi oi-brush"></i>
@@ -174,5 +182,5 @@ else if (Votes.Count < Playlist.Tracks.Items.Count)
 }
 else
 {
-    <ResultsTable DisplayNames=DisplayNames TrackNames=TrackNames Votes=Votes Results=Results />
+    <ResultsTable Theme=Theme DisplayNames=DisplayNames TrackNames=TrackNames Votes=Votes Results=Results />
 }

@@ -16,7 +16,7 @@ public partial class Index
     private List<Votes> Votes = [];
     private IEnumerable<ResultRow> Results = [];
     private (bool IsLoading, string ErrorText) SubmitVotesModal = (false, "");
-    private string Theme = string.Empty;
+    private Theme Theme = new();
     private Theme FormData = new();
 
     protected override void OnInitialized()
@@ -131,12 +131,17 @@ public partial class Index
     private async Task RefreshTheme()
     {
         Theme = await votingService.GetTheme();
-        if(string.IsNullOrEmpty(Theme) && Playlist != null)
-            Theme = Playlist.Description;
+        // If theme has not been set, default to use playlist description
+        if (string.IsNullOrEmpty(Theme.Name) && Playlist != null)
+            Theme.Name = Playlist.Description;
     }
     private async Task SubmitTheme()
     {
-        Theme = FormData.Name;
-        await votingService.SetTheme(FormData.AddedBy, FormData.Name);
+        var response = await votingService.SetTheme(FormData.AddedBy, FormData.Name);
+        if (response.IsSuccess)
+        {
+            Theme.Name = FormData.Name;
+            Theme.AddedBy = FormData.AddedBy;
+        }
     }
 }

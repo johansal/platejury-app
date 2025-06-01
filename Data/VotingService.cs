@@ -162,6 +162,11 @@ public class VotingService(ILogger<VotingService> logger, string projectName, st
     }
     public async Task<ServiceResponse> SetTheme(string addedBy, string theme)
     {
+        var date = GetCurrentVotingDay();
+        return await SetTheme(addedBy, theme, date);
+    }
+    public async Task<ServiceResponse> SetTheme(string addedBy, string theme, DateTime date)
+    {
         if (string.IsNullOrEmpty(theme))
         {
             return new()
@@ -174,7 +179,6 @@ public class VotingService(ILogger<VotingService> logger, string projectName, st
         CollectionReference collection = db.Collection(themeCollection);
 
         // Delete any existing theme for the same day
-        var date = GetCurrentVotingDay();
         QuerySnapshot docs = await collection.WhereEqualTo("resultDay", date).GetSnapshotAsync();
         foreach (var doc in docs)
         {
@@ -183,7 +187,7 @@ public class VotingService(ILogger<VotingService> logger, string projectName, st
         }
 
         // Add new theme to collection.
-        var vote = await collection.AddAsync(
+        await collection.AddAsync(
             new
             {
                 addedBy,
@@ -197,23 +201,31 @@ public class VotingService(ILogger<VotingService> logger, string projectName, st
             IsSuccess = true
         };
     }
-    public async Task<string> GetTheme()
+    public async Task<Theme> GetTheme()
     {
         return await GetTheme(GetCurrentVotingDay());
     }
-    public async Task<string> GetTheme(DateTime date)
+    public async Task<Theme> GetTheme(DateTime date)
     {
+        // set default theme.
+        Theme t = new()
+        {
+            Name = string.Empty,
+            AddedBy = string.Empty
+        };
+
         CollectionReference collection = db.Collection(themeCollection);
         var docs = await collection.WhereEqualTo("resultDay", date).GetSnapshotAsync();
 
         if (docs.Count == 1)
         {
-            return docs[0].GetValue<string>("name");
+            t.Name = docs[0].GetValue<string>("name");
+            t.AddedBy = docs[0].GetValue<string>("addedBy");
         }
         else
         {
             logger.LogDebug("{datetime} Found {n} themes for {date}, defaulting", DateTime.Now, docs.Count, date);
-            return string.Empty;
         }
+        return t;
     }
 }
