@@ -1,8 +1,15 @@
 @namespace platejury_app.Shared
+@using platejury_app.Data
 
 <div>
-    <h2>Weekly Results (@Votes.FirstOrDefault()?.ResultDay.ToString("D")):</h2>
-    <br/>
+    <figure>
+    <blockquote class="blockquote">
+        <p>@Theme.Name</p>
+    </blockquote>
+    <figcaption class="blockquote-footer">
+        @Theme.AddedBy, <cite title="Source Title">@Votes.FirstOrDefault()?.ResultDay.ToString("D")</cite>
+    </figcaption>
+    </figure>
     <table class="table">
         <thead>
             <tr>
@@ -66,6 +73,8 @@
 
 @code
 {
+    [Parameter]
+    public Theme Theme {get; set;} = new();
     [Parameter]
     public Dictionary<string, string> DisplayNames {get; set;} = [];
     [Parameter]

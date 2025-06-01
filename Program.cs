@@ -24,8 +24,9 @@ builder.Services.AddSingleton(
     {
         var logger = sp.GetRequiredService<ILogger<VotingService>>();
         var project = builder.Configuration["VotingService:Project"] ?? "";
-        var collection = builder.Configuration["VotingService:Collection"] ?? "";
-        return new VotingService(logger, project, collection);
+        var voteCollection = builder.Configuration["VotingService:Collection"] ?? "";
+        var themeCollection = "theme";
+        return new VotingService(logger, project, voteCollection, themeCollection);
     }
 );
 builder.Services.AddSingleton(

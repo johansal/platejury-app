@@ -15,7 +15,9 @@ public partial class Index
     private Dictionary<string,bool> VoteButtonStates = [];
     private List<Votes> Votes = [];
     private IEnumerable<ResultRow> Results = [];
-    private (bool IsLoading, string ErrorText) Modal = (false, "");
+    private (bool IsLoading, string ErrorText) SubmitVotesModal = (false, "");
+    private Theme Theme = new();
+    private Theme FormData = new();
 
     protected override void OnInitialized()
     {
@@ -36,6 +38,8 @@ public partial class Index
         // get display names for tracks
         TrackNames = GetTrackDisplayNames();
         DuplicateTracks = await historyService.FindDuplicateTracks([.. TrackNames.Keys]);
+        // get theme, default to playlist description in spotify if not set
+        await RefreshTheme();
         // get votes from db and calculate results
         await RefreshSubmittedVotes();
         StateHasChanged(); // Ensures UI updates when data is ready
@@ -101,8 +105,8 @@ public partial class Index
     // Save the current top 5 from voting list to db
     private async Task SubmitVotes()
     {
-        Modal.IsLoading = true;
-        Modal.ErrorText = string.Empty;
+        SubmitVotesModal.IsLoading = true;
+        SubmitVotesModal.ErrorText = string.Empty;
 
         var trackSelection = SelectedTracks.Count > 5 ? SelectedTracks.GetRange(0, 5) : SelectedTracks;
         var ret = await votingService.AddVotes(SelectedVoterId, trackSelection);
@@ -119,9 +123,25 @@ public partial class Index
         }
         else
         {
-            Modal.ErrorText = ret.Message ?? string.Empty;
+            SubmitVotesModal.ErrorText = ret.Message ?? string.Empty;
         }
 
-        Modal.IsLoading = false;
+        SubmitVotesModal.IsLoading = false;
+    }
+    private async Task RefreshTheme()
+    {
+        Theme = await votingService.GetTheme();
+        // If theme has not been set, default to use playlist description
+        if (string.IsNullOrEmpty(Theme.Name) && Playlist != null)
+            Theme.Name = Playlist.Description;
+    }
+    private async Task SubmitTheme()
+    {
+        var response = await votingService.SetTheme(FormData.AddedBy, FormData.Name);
+        if (response.IsSuccess)
+        {
+            Theme.Name = FormData.Name;
+            Theme.AddedBy = FormData.AddedBy;
+        }
     }
 }
