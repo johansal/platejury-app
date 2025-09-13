@@ -137,6 +137,8 @@ else if (Votes.Count < Playlist.Tracks.Items.Count)
             <div class="col-md-3">
                 <p>Voting progress: <button @onclick="RefreshSubmittedVotes"><i class="oi oi-reload"></i></button></p>
                 <h2>@Votes.Count / @Playlist.Tracks.Items.Count</h2>
+                <!--Wall of -->
+                @*
                 <p style="color:red;">
                     @if (DateTime.Now.DayOfWeek == DayOfWeek.Thursday && DateTime.Now.TimeOfDay.Hours >= 12 && Votes.Count <
                                     Playlist.Tracks.Items.Count)
@@ -144,6 +146,11 @@ else if (Votes.Count < Playlist.Tracks.Items.Count)
                         <img src="/shaking-angry-fist.gif" style="height:20pt;" />
                         @GetWallOfShame()
                     }
+                </p>
+                *@
+                <p style="color:red;">
+                        <img src="/shaking-angry-fist.gif" style="height:20pt;" />
+                        @GetWallOfShame()
                 </p>
             </div>
         </div>
