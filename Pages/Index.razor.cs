@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Microsoft.JSInterop;
 using platejury_app.Data;
 
@@ -43,6 +44,22 @@ public partial class Index
         // get votes from db and calculate results
         await RefreshSubmittedVotes();
         StateHasChanged(); // Ensures UI updates when data is ready
+    }
+
+    // Timezone aware check to see if its past 12 o clock in Helsinki on a voting day and someone hasnt voted
+    private bool ShowWOS()
+    {
+        // windows and linux timezone id's are different
+        string tzId = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? "E. Europe Standard Time"
+            : "Europe/Helsinki";
+
+        var tz = TimeZoneInfo.FindSystemTimeZoneById(tzId);
+        var localTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+
+        return localTime.DayOfWeek == DayOfWeek.Saturday 
+            && localTime.TimeOfDay.Hours >= 8 
+            && Votes.Count < Playlist?.Tracks.Items.Count;
     }
 
     private string GetWallOfShame()

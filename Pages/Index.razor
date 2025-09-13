@@ -141,8 +141,7 @@ else if (Votes.Count < Playlist.Tracks.Items.Count)
                 
                 <!--Wall of shame-->
                 <p style="color:red;">
-                    @if (DateTime.Now.DayOfWeek == DayOfWeek.Saturday && DateTime.Now.TimeOfDay.Hours >= 8 && Votes.Count <
-                                    Playlist.Tracks.Items.Count)
+                    @if (ShowWOS())
                     {
                         <img src="/shaking-angry-fist.gif" style="height:20pt;" />
                         @GetWallOfShame()
