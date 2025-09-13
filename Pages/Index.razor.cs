@@ -57,8 +57,8 @@ public partial class Index
         var tz = TimeZoneInfo.FindSystemTimeZoneById(tzId);
         var localTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
 
-        return localTime.DayOfWeek == DayOfWeek.Saturday 
-            && localTime.TimeOfDay.Hours >= 8 
+        return localTime.DayOfWeek == DayOfWeek.Thursday 
+            && localTime.TimeOfDay.Hours >= 12
             && Votes.Count < Playlist?.Tracks.Items.Count;
     }
 
