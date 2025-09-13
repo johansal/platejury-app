@@ -27,8 +27,26 @@ displaynames.json file to root directory with known users names (this is also ha
 
 ### How to run
 
+#### Local
+
 Add playlist service configuration secrets to appsettings.json or to local secretstore (dotnet user-secrets set key value).
 Add displaynames.json.
 Add firestore admin sdk credentials .json-file.
 
 Run command `dotnet run`
+
+#### Docker
+
+Build image
+
+docker build -t platejury-appimage .
+
+Run container and mount secrets
+
+docker run -d \
+  -v /path/to/platejury-app-firebase-adminsdk-1234.json:/app/platejury-app-firebase-adminsdk-1234.json:ro \
+  -v /path/to/appsettings.Production.json:/app/appsettings.Production.json:ro \
+  -v /path/to/displaynames.json:/app/displaynames.json \
+  -p 5000:5000 \
+  -e ASPNETCORE_URLS=http://+:5000 \
+  --name platejury-app platejury-appimage

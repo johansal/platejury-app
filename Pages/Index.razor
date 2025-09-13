@@ -134,17 +134,20 @@ else if (Votes.Count < Playlist.Tracks.Items.Count)
                 <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#loadingModal"
                     disabled="@string.IsNullOrEmpty(SelectedVoterId)" @onclick="SubmitVotes">Submit votes!</button>
             </div>
+            <!-- Vite counter-->
             <div class="col-md-3">
                 <p>Voting progress: <button @onclick="RefreshSubmittedVotes"><i class="oi oi-reload"></i></button></p>
                 <h2>@Votes.Count / @Playlist.Tracks.Items.Count</h2>
+                
+                <!--Wall of shame-->
                 <p style="color:red;">
-                    @if (DateTime.Now.DayOfWeek == DayOfWeek.Thursday && DateTime.Now.TimeOfDay.Hours >= 12 && Votes.Count <
-                                    Playlist.Tracks.Items.Count)
+                    @if (ShowWOS())
                     {
-                        <img src="shaking-angry-fist.gif" style="height:20pt;" />
+                        <img src="/shaking-angry-fist.gif" style="height:20pt;" />
                         @GetWallOfShame()
                     }
                 </p>
+
             </div>
         </div>
         <br />
