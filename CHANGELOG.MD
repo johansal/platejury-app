@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.0.11] - 2025-08-30
+## [0.0.11] - 2025-09-13
 
 ## Added
 
 - docker file
+
+## Fixed
+
+- wall of shame was based on local time
 
 ## [0.0.10] - 2025-05-31
 
